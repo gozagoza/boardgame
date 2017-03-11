@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+
+人数: <input type="text" id="players">
+時間(分): <input type="text" id="time">
+ジャンル: <input type="text" id="genre">
+<div id="gameTitle"></div>
+<div id="state"></div>
+
+<script>
+/*
+ * 
+ */
+(function(){
+  var l = function(id){
+    return document.getElementById(id);
+  }
+
+  var data = null;
+
+  var url = "https://script.google.com/macros/s/AKfycbwEWQi56rzo16GeGgqv4vJe32ZjzVhAAcRsz48qL4waZNDBBiX3/exec";
+  var req = new XMLHttpRequest();
+  req.open('GET', url);
+  req.onreadystatechange = function() {
+    var result = document.getElementById('state');
+    if (req.readyState == 4) { // 通信の完了時
+      if (req.status == 200) { // 通信の成功時
+        result.innerHTML = "";
+        data = JSON.parse(req.responseText);
+      }
+    }else{
+      result.innerHTML = "通信中..."
+    }
+  }
+  req.send(null);
+
+  var query = {};
+  l("players").onchange = function(){
+    query["players"] = l("players").value;
+    showData()
+  }
+  l("time").onchange = function(){
+    query["time"] = l("time").value;
+    showData()
+  }
+  l("genre").onchange = function(){
+    query["genre"] = l("genre").value;
+    showData()
+  }
+
+  function showData(){
+    if(!data){return}
+      console.log(data);
+    var game_title;
+    var results = [];
+    data.forEach(function(item, i){
+      if(query["players"]){
+        if(! (query["players"] >= item["プレイ人数（最小）"])){return false}
+        if(! (query["players"] <= item["プレイ人数（最大）"])){return false}
+      }
+      if(query["time"]){
+        if(! (query["time"] < item["プレイ時間（分）"] * 2)){return false}
+        if(! (query["time"] > item["プレイ時間（分）"] * 0.5)){return false}
+      }
+      if(query["genre"]){
+        if(! (item["ジャンル"].match(query["genre"]))){return false}
+      }
+      results.push(item);
+    })
+    if(results.length <= 0){
+      l("gameTitle").innerText = "not found";
+      return false;
+    }
+    console.log(results);
+    var i = (Math.random()*results.length)|0;
+    console.log(results[i]);
+    l("gameTitle").innerText = results[i]["ゲームタイトル"];
+  }
+})();
+
+</script>
+</body>
+</html>
+
