@@ -6,12 +6,27 @@
 </head>
 <body>
 
-人数: <input type="text" id="players">
-時間(分): <input type="text" id="time">
-ジャンル: <input type="text" id="genre">
-<div id="gameTitle"></div>
+人数: <input type="text" id="players" placeholder="">
+時間(分): <input type="text" id="time" placeholder="">
+難易度: <input type="text" id="difficulty" placeholder="A~C">
+ジャンル: <select id="genre">
+<option value="対戦">対戦</option>
+<option value="協力">協力</option>
+<option value="デッキ">デッキ</option>
+<option value="ワード">ワード</option>
+<option value="ワカプレ">ワカプレ</option>
+<option value="ガチャ">ガチャ</option>
+<option value="トリック">トリック</option>
+<option value="ダイス">ダイス</option>
+<option value="競り">競り</option>
+<option value="スピード">スピード</option>
+<option value="ブラフ">ブラフ</option>
+<option value="人狼系">人狼系</option>
+<option value="クソ">クソ</option>
+</select>
+<h1 id="gameTitle"></h1>
+<div id="gameAll"></div>
 <div id="state"></div>
-
 <script>
 /*
  * 
@@ -48,6 +63,10 @@
     query["time"] = l("time").value;
     showData()
   }
+  l("difficulty").onchange = function(){
+    query["difficulty"] = l("difficulty").value;
+    showData()
+  }
   l("genre").onchange = function(){
     query["genre"] = l("genre").value;
     showData()
@@ -67,18 +86,26 @@
         if(! (query["time"] < item["プレイ時間（分）"] * 2)){return false}
         if(! (query["time"] > item["プレイ時間（分）"] * 0.5)){return false}
       }
+      if(query["difficulty"]){
+        if(! (item["難易度"].match(query["difficulty"]))){return false}
+      }
       if(query["genre"]){
         if(! (item["ジャンル"].match(query["genre"]))){return false}
       }
       results.push(item);
     })
     if(results.length <= 0){
-      l("gameTitle").innerText = "not found";
+      l("gameTitle").innerText = "nolt found";
+      l("gameAll").innerText = "";
       return false;
     }
     console.log(results);
     var i = (Math.random()*results.length)|0;
     console.log(results[i]);
+    l("gameAll").innerText = "";
+    for(var j = 0; j<results.length; j++){
+      l("gameAll").innerHTML += results[j]["ゲームタイトル"] + "<br/>";
+    }
     l("gameTitle").innerText = results[i]["ゲームタイトル"];
   }
 })();
